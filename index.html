@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pra você</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --bg2: #111114;
+    --card: #16161a;
+    --border: rgba(180, 140, 255, 0.12);
+    --purple: #b08fff;
+    --purple-soft: rgba(176, 143, 255, 0.18);
+    --purple-glow: rgba(176, 143, 255, 0.06);
+    --white: #f0eef6;
+    --muted: rgba(240, 238, 246, 0.45);
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── AMBIENT GLOW ── */
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .glow-orb.a {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(130, 80, 255, 0.09) 0%, transparent 70%);
+    top: -80px; left: -80px;
+  }
+  .glow-orb.b {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(180, 120, 255, 0.07) 0%, transparent 70%);
+    bottom: 10%; right: -60px;
+    animation-delay: -9s;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.05); }
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    text-align: center;
+    gap: 48px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--purple);
+    opacity: 0;
+    animation: fadeUp 0.9s 0.2s ease forwards;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 9vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    opacity: 0;
+    animation: fadeUp 1s 0.45s ease forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--purple);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    text-decoration: none;
+    opacity: 0;
+    animation: fadeUp 1s 0.75s ease forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--purple-soft);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: inherit;
+  }
+
+  .btn-primary:hover {
+    border-color: rgba(176, 143, 255, 0.45);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(140, 90, 255, 0.15);
+  }
+  .btn-primary:hover::before { opacity: 1; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 1.4s ease forwards;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--purple), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 0.8; transform: scaleY(1.1); }
+  }
+
+  /* ── COUNTER ── */
+  #counter {
+    gap: 56px;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--purple);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .counter-caption {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.5;
+  }
+
+  .counter-grid {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .counter-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px;
+    min-width: 110px;
+    text-align: center;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .counter-block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(176,143,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .counter-block:hover {
+    border-color: rgba(176, 143, 255, 0.3);
+    transform: translateY(-3px);
+  }
+
+  .counter-num {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 8vw, 4rem);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1;
+    display: block;
+    letter-spacing: -0.02em;
+  }
+
+  .counter-sep {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--purple);
+    opacity: 0.3;
+    line-height: 1;
+    padding-bottom: 24px;
+    align-self: flex-end;
+  }
+
+  .counter-unit {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple);
+    opacity: 0.6;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ── PHRASES ── */
+  #phrases {
+    gap: 48px;
+  }
+
+  .phrases-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 56px 48px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .phrases-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(176,143,255,0.4), transparent);
+  }
+
+  .phrases-card:hover { border-color: rgba(176, 143, 255, 0.25); }
+
+  .phrase-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--white);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .phrase-text.fade-out {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .phrase-text.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 40px;
+  }
+
+  .btn-ghost:hover {
+    border-color: rgba(176, 143, 255, 0.35);
+    color: var(--white);
+    background: var(--purple-soft);
+    transform: translateY(-1px);
+  }
+
+  /* ── PLAYLIST ── */
+  #playlist {
+    gap: 48px;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  }
+
+  .playlist-header {
+    text-align: center;
+  }
+
+  .playlist-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 300;
+    color: var(--white);
+    margin-top: 12px;
+  }
+
+  .tracks-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 580px;
+  }
+
+  .track-embed {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    background: var(--card);
+  }
+
+  .track-embed:hover {
+    border-color: rgba(176, 143, 255, 0.28);
+    transform: translateX(4px);
+    box-shadow: -4px 0 20px rgba(140, 90, 255, 0.1);
+  }
+
+  .track-embed iframe {
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .footer-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--purple), transparent);
+    opacity: 0.4;
+  }
+
+  .footer-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--muted);
+  }
+
+  /* ── HERO HIDDEN STATE ── */
+  #hero-content { display: none; }
+  #hero-content.visible { display: flex; flex-direction: column; align-items: center; gap: 48px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .counter-grid { gap: 8px; }
+    .counter-block { min-width: 90px; padding: 22px 20px; }
+    .phrases-card { padding: 40px 28px; }
+    .counter-sep { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb a"></div>
+<div class="glow-orb b"></div>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <!-- Landing screen -->
+  <div id="landing" style="display:flex;flex-direction:column;align-items:center;gap:48px;text-align:center;">
+    <p class="hero-eyebrow">só um segundo ✦</p>
+    <h1 class="hero-title">fiz isso aqui e<br><em>lembrei de você</em> 🙂</h1>
+    <button class="btn-primary" onclick="openSite()">abre aí</button>
+  </div>
+
+  <!-- Rest of content revealed -->
+  <div id="hero-content">
+  </div>
+
+  <div class="scroll-hint" id="scrollHint" style="display:none;">
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ── COUNTER ── -->
+<section id="counter">
+  <p class="section-label reveal">tempo juntos</p>
+  <p class="counter-caption reveal">desde o dia que a gente se viu pela primeira vez</p>
+  <div class="counter-grid reveal">
+    <div class="counter-block">
+      <span class="counter-num" id="days">0</span>
+      <span class="counter-unit">dias</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-block">
+      <span class="counter-num" id="hours">00</span>
+      <span class="counter-unit">horas</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-block">
+      <span class="counter-num" id="minutes">00</span>
+      <span class="counter-unit">minutos</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── PHRASES ── -->
+<section id="phrases">
+  <p class="section-label reveal">algumas verdades</p>
+  <div class="phrases-card reveal">
+    <p class="phrase-text fade-in" id="phraseText">clica aí 🙂</p>
+    <button class="btn-ghost" onclick="nextPhrase()">mudar frase ↻</button>
+  </div>
+</section>
+
+<!-- ── PLAYLIST ── -->
+<section id="playlist">
+  <div class="playlist-header reveal">
+    <p class="section-label">playlist</p>
+    <h2 class="playlist-title">umas músicas que me lembram você</h2>
+  </div>
+
+  <div class="tracks-grid reveal">
+
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/3EBtHRt4uSSFhNladqH3UP?utm_source=generator&theme=0"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+
+    <!-- Track 2: starts at 2:03 (123s) -->
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/6JKkP9ABQzYZUFSKSVDKIc?utm_source=generator&theme=0&t=123"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+      <div style="padding:8px 16px 12px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);opacity:0.65;">ouve do 2:03 ao 2:45 ✦</span>
+      </div>
+    </div>
+
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/32ePhN7OPZpnBQ7XrJWR1l?utm_source=generator&theme=0"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/15iCEgTo4luXR9ZtefjvYk?utm_source=generator&theme=0"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/4woTEX1wYOTGDqNXuavlRC?utm_source=generator&theme=0"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+
+    <div class="track-embed">
+      <iframe src="https://open.spotify.com/embed/track/40Fu5zvEGp1vyTFPksatVo?utm_source=generator&theme=0"
+        height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-line"></div>
+  <p class="footer-text">é isso… só queria fazer algo diferente 🙂</p>
+  <div class="footer-line"></div>
+</footer>
+
+<script>
+  // ── OPEN SITE ──
+  function openSite() {
+    document.getElementById('landing').style.opacity = '0';
+    document.getElementById('landing').style.transform = 'translateY(-12px)';
+    document.getElementById('landing').style.transition = 'all 0.5s ease';
+    setTimeout(() => {
+      document.getElementById('landing').style.display = 'none';
+      document.getElementById('scrollHint').style.display = 'flex';
+      document.getElementById('scrollHint').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('scrollHint').style.transition = 'opacity 0.8s ease';
+        document.getElementById('scrollHint').style.opacity = '1';
+      }, 100);
+      // Smooth scroll to counter
+      setTimeout(() => {
+        document.getElementById('counter').scrollIntoView({ behavior: 'smooth' });
+      }, 600);
+    }, 500);
+  }
+
+  // ── COUNTER ──
+  const startDate = new Date('2026-02-20T00:00:00');
+
+  function updateCounter() {
+    const now = new Date();
+    const diff = now - startDate;
+    if (diff < 0) return;
+
+    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    document.getElementById('days').textContent    = days;
+    document.getElementById('hours').textContent   = String(hours).padStart(2, '0');
+    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+  }
+
+  updateCounter();
+  setInterval(updateCounter, 10000);
+
+  // ── PHRASES ──
+  const phrases = [
+    "você é meio estressada mas eu gosto kkk",
+    "você implica comigo mas é legal",
+    "sua risada é boa demais",
+    "não sei como você me aguenta",
+    "você é complicada viu",
+    "mas mesmo assim eu gosto de você 🙂",
+    "você faz tudo parecer mais interessante",
+    "de boa, você é das melhores pessoas que eu conheço",
+    "não precisava ser tão engraçada não, mas tudo bem",
+  ];
+
+  let currentPhrase = -1;
+
+  function nextPhrase() {
+    const el = document.getElementById('phraseText');
+    el.classList.remove('fade-in');
+    el.classList.add('fade-out');
+
+    setTimeout(() => {
+      let next;
+      do { next = Math.floor(Math.random() * phrases.length); }
+      while (next === currentPhrase);
+      currentPhrase = next;
+      el.textContent = phrases[currentPhrase];
+      el.classList.remove('fade-out');
+      el.classList.add('fade-in');
+    }, 400);
+  }
+
+  // ── SCROLL REVEAL ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        const delay = e.target.dataset.delay || 0;
+        setTimeout(() => e.target.classList.add('visible'), delay);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.dataset.delay = (i % 4) * 120;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
