@@ -564,14 +564,6 @@
   </div>
 </section>
 
-<!-- ── PHRASES ── -->
-<section id="phrases">
-  <p class="section-label reveal">umas coisas</p>
-  <div class="phrases-card reveal">
-    <p class="phrase-text fade-in" id="phraseText">clica aí 🙂</p>
-    <button class="btn-ghost" onclick="nextPhrase()">mudar frase ↻</button>
-  </div>
-</section>
 
 <!-- ── PLAYLIST ── -->
 <section id="playlist">
@@ -669,32 +661,8 @@
   updateCounter();
   setInterval(updateCounter, 10000);
 
-  // Phrases
-  const phrases = [
-    "você é meio estressada mas eu gosto kkk",
-    "sua risada é boa demais, sério",
-    "não sei como você me aguenta",
-    "mas mesmo assim eu gosto de você 🙂",
-    "você faz tudo parecer mais interessante",
-    "seu cabelo então… não precisava ser tão bonito não",
-    "seu sorriso é uma coisa absurda, de verdade",
-    "seu olhar é daqueles que a gente não consegue ignorar",
-    "queria muito te conhecer mais",
-  ];
-  let currentPhrase = -1;
-  function nextPhrase() {
-    const el = document.getElementById('phraseText');
-    el.classList.remove('fade-in');
-    el.classList.add('fade-out');
-    setTimeout(() => {
-      let next;
-      do { next = Math.floor(Math.random() * phrases.length); } while (next === currentPhrase);
-      currentPhrase = next;
-      el.textContent = phrases[currentPhrase];
-      el.classList.remove('fade-out');
-      el.classList.add('fade-in');
-    }, 400);
-  }
+  
+  
 
   // Scroll reveal
   const observer = new IntersectionObserver(entries => {
